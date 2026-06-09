@@ -582,100 +582,150 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--color-backgrou
 
 </div>
 
-<script>
+script>
+
+// STORAGE KEY
+const STORAGE_KEY = "uwg_dashboard_data";
+
+// LOAD SAVED DATA
+function loadData() {
+  const data = localStorage.getItem(STORAGE_KEY);
+  if (!data) return;
+
+  const parsed = JSON.parse(data);
+
+  Object.keys(parsed).forEach(id => {
+    const container = document.getElementById(id);
+    if (container) {
+      container.innerHTML = parsed[id];
+    }
+  });
+
+  attachHandlers();
+  upd();
+}
+
+// SAVE DATA
+function saveData() {
+  const data = {};
+
+  document.querySelectorAll('.tlist').forEach(tlist => {
+    data[tlist.id] = tlist.innerHTML;
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// REATTACH EVENTS AFTER LOAD
+function attachHandlers() {
+  document.querySelectorAll('.tc').forEach(card => {
+    card.onclick = function(e) {
+      if (e.target.classList.contains('del-btn')) return;
+      const chk = this.querySelector('.chk');
+      chk.classList.toggle('on');
+      this.classList.toggle('done', chk.classList.contains('on'));
+      saveData();
+      upd();
+    };
+  });
+}
+
+// SWITCH PILARS
 function sw(i){
   document.querySelectorAll('.ptab').forEach((t,j)=>t.classList.toggle('on',j===i));
   document.querySelectorAll('.pillar').forEach((p,j)=>p.classList.toggle('on',j===i));
 }
 
-function tog(card){
-  if(event&&event.target.classList.contains('del-btn'))return;
-  if(event&&event.target.classList.contains('chk')){}
-  const chk=card.querySelector('.chk');
-  const done=chk.classList.toggle('on');
-  card.classList.toggle('done',done);
-  upd();
-}
-
+// DELETE TASK
 function del(e,btn){
   e.stopPropagation();
   const card=btn.closest('.tc');
-  if(confirm('Remove this task?')){card.remove();upd();}
+  if(confirm("Remove this task?")){
+    card.remove();
+    saveData();
+    upd();
+  }
 }
 
+// FORM CONTROL
 function openForm(id){
   document.querySelectorAll('.add-form').forEach(f=>f.classList.remove('open'));
   document.getElementById(id).classList.add('open');
-  const parts=id.split('-');
-  const txtId='txt-'+parts[1]+'-'+parts[2];
-  setTimeout(()=>{const el=document.getElementById(txtId);if(el)el.focus();},50);
 }
 
 function closeForm(id){
-  const f=document.getElementById(id);
-  f.classList.remove('open');
-  const parts=id.split('-');
-  const key='txt-'+parts[1]+'-'+parts[2];
-  const wkey='why-'+parts[1]+'-'+parts[2];
-  const el=document.getElementById(key);
-  const wel=document.getElementById(wkey);
-  if(el)el.value='';
-  if(wel)wel.value='';
+  document.getElementById(id).classList.remove('open');
 }
 
+// ADD TASK
 function saveTask(pillar,person){
-  const txtEl=document.getElementById('txt-'+pillar+'-'+person);
-  const priEl=document.getElementById('pri-'+pillar+'-'+person);
-  const whyEl=document.getElementById('why-'+pillar+'-'+person);
-  const txt=(txtEl&&txtEl.value.trim())||'';
-  if(!txt)return;
-  const pri=priEl?priEl.value:'high';
-  const why=whyEl?whyEl.value.trim():'';
-  const tlId='tl-'+pillar+'-'+person;
-  const tl=document.getElementById(tlId);
-  if(!tl)return;
+  const txt = document.getElementById('txt-'+pillar+'-'+person).value.trim();
+  if(!txt) return;
 
-  const priClass={'crit':'crit','high':'high','med':'med'}[pri]||'high';
-  const priLabel={'crit':'Critical','high':'High','med':'Medium'}[pri]||'High';
-  const priSpanClass={'crit':'p-crit','high':'p-high','med':'p-med'}[pri]||'p-high';
+  const pri = document.getElementById('pri-'+pillar+'-'+person).value;
+  const why = document.getElementById('why-'+pillar+'-'+person).value.trim();
 
-  const card=document.createElement('div');
+  const tl = document.getElementById('tl-'+pillar+'-'+person);
+
+  const priClass = {crit:'crit',high:'high',med:'med'}[pri];
+  const priLabel = {crit:'Critical',high:'High',med:'Medium'}[pri];
+  const priSpan = {crit:'p-crit',high:'p-high',med:'p-med'}[pri];
+
+  const card = document.createElement('div');
   card.className='tc '+priClass;
+
   card.onclick=function(e){
-    if(e.target.classList.contains('del-btn'))return;
-    const c=this;
-    const chk=c.querySelector('.chk');
+    if(e.target.classList.contains('del-btn')) return;
+    const chk=this.querySelector('.chk');
     chk.classList.toggle('on');
-    c.classList.toggle('done',chk.classList.contains('on'));
+    this.classList.toggle('done',chk.classList.contains('on'));
+    saveData();
     upd();
   };
-  card.innerHTML=`<div class="tc-top"><div class="chk"></div><div class="tc-txt">${escHtml(txt)}</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="${priSpanClass}">${priLabel}</span>${why?`<span class="tc-why">${escHtml(why)}</span>`:''}<span class="src">Added</span></div>`;
 
-  // Insert before add-btn
-  const addBtn=tl.parentElement.querySelector('.add-btn');
+  card.innerHTML=`
+    <div class="tc-top">
+      <div class="chk"></div>
+      <div class="tc-txt">${txt}</div>
+      <button class="del-btn" onclick="del(event,this)">✕</button>
+    </div>
+    <div class="tc-meta">
+      <span class="${priSpan}">${priLabel}</span>
+      ${why ? `<span class="tc-why">${why}</span>` : ''}
+      <span class="src">Added</span>
+    </div>
+  `;
+
   tl.appendChild(card);
 
   closeForm('af-'+pillar+'-'+person);
+  saveData();
   upd();
 }
 
-function escHtml(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
+// UPDATE PROGRESS
 function upd(){
   for(let i=0;i<8;i++){
     const p=document.getElementById('p'+i);
-    if(!p)continue;
+    if(!p) continue;
+
     const all=p.querySelectorAll('.tc').length;
     const done=p.querySelectorAll('.chk.on').length;
     const pct=all?Math.round(done/all*100):0;
+
     const bar=document.getElementById('bar'+i);
     const lbl=document.getElementById('lbl'+i);
-    const colors=['#A32D2D','#185FA5','#0F6E56','#854F0B','#3C3489','#993C1D','#0C447C','#3B6D11'];
-    if(bar){bar.style.width=pct+'%';bar.style.background=colors[i];}
-    if(lbl)lbl.textContent=pct+'% ('+done+'/'+all+')';
+
+    if(bar) bar.style.width=pct+'%';
+    if(lbl) lbl.textContent=pct+'% ('+done+'/'+all+')';
   }
 }
-upd();
+
+// INIT
+window.onload = function(){
+  loadData();
+  attachHandlers();
+  upd();
+};
+
 </script>
