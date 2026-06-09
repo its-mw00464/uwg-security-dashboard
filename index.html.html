@@ -1,0 +1,681 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--color-background-tertiary);color:var(--color-text-primary)}
+.wrap{padding:1rem}
+.page-title{font-size:17px;font-weight:700;color:var(--color-text-primary)}
+.page-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px;margin-bottom:.85rem}
+.pillar-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.85rem}
+.ptab{padding:5px 11px;border-radius:14px;font-size:11.5px;font-weight:500;cursor:pointer;border:1.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);transition:all .15s;white-space:nowrap}
+.ptab.on{color:#fff;border-color:transparent}
+.ptab[data-p="0"].on{background:#A32D2D}
+.ptab[data-p="1"].on{background:#185FA5}
+.ptab[data-p="2"].on{background:#0F6E56}
+.ptab[data-p="3"].on{background:#854F0B}
+.ptab[data-p="4"].on{background:#3C3489}
+.ptab[data-p="5"].on{background:#633806}
+.ptab[data-p="6"].on{background:#0C447C}
+.ptab[data-p="7"].on{background:#3B6D11}
+.pillar{display:none}
+.pillar.on{display:block}
+.ph{border-radius:9px;padding:.75rem .9rem;margin-bottom:.75rem;display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;flex-wrap:wrap}
+.ph0{background:#FCEBEB}.ph1{background:#E6F1FB}.ph2{background:#E1F5EE}.ph3{background:#FAEEDA}.ph4{background:#EEEDFE}.ph5{background:#FAECE7}.ph6{background:#E6F1FB}.ph7{background:#EAF3DE}
+.ph-label{font-size:14px;font-weight:700}
+.ph0 .ph-label{color:#791F1F}.ph1 .ph-label{color:#0C447C}.ph2 .ph-label{color:#085041}.ph3 .ph-label{color:#633806}.ph4 .ph-label{color:#26215C}.ph5 .ph-label{color:#4A1B0C}.ph6 .ph-label{color:#042C53}.ph7 .ph-label{color:#173404}
+.ph-goal{font-size:11px;margin-top:2px}
+.ph0 .ph-goal{color:#A32D2D}.ph1 .ph-goal{color:#185FA5}.ph2 .ph-goal{color:#0F6E56}.ph3 .ph-goal{color:#854F0B}.ph4 .ph-goal{color:#534AB7}.ph5 .ph-goal{color:#993C1D}.ph6 .ph-goal{color:#185FA5}.ph7 .ph-goal{color:#3B6D11}
+.prog-wrap{min-width:88px;text-align:right}
+.prog-lbl{font-size:10px;font-weight:700}
+.ph0 .prog-lbl{color:#A32D2D}.ph1 .prog-lbl{color:#185FA5}.ph2 .prog-lbl{color:#0F6E56}.ph3 .prog-lbl{color:#854F0B}.ph4 .prog-lbl{color:#534AB7}.ph5 .prog-lbl{color:#993C1D}.ph6 .prog-lbl{color:#185FA5}.ph7 .prog-lbl{color:#3B6D11}
+.pbar-bg{height:4px;background:var(--color-border-tertiary);border-radius:4px;margin-top:4px;overflow:hidden;width:88px}
+.pbar{height:4px;border-radius:4px;transition:width .3s}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:560px){.cols{grid-template-columns:1fr}}
+.lane{border-radius:9px;border:1px solid var(--color-border-tertiary);background:var(--color-background-primary);overflow:visible}
+.lane-hd{padding:.6rem .8rem;display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--color-border-tertiary)}
+.lj{background:#EEF4FC}.lm{background:#EAF7F2}
+.lname{font-size:11.5px;font-weight:700}
+.lj .lname{color:#185FA5}.lm .lname{color:#0F6E56}
+.lrole{font-size:9.5px;color:var(--color-text-secondary);margin-top:1px}
+.av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0}
+.av-j{background:#B5D4F4;color:#042C53}.av-m{background:#9FE1CB;color:#04342C}
+.sec-lbl{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-secondary);padding:.45rem .65rem .1rem}
+.tlist{padding:.3rem .4rem}
+.tc{border-radius:6px;border:1px solid var(--color-border-tertiary);background:var(--color-background-secondary);padding:.45rem .6rem;margin:.28rem 0;cursor:pointer;transition:border-color .15s;position:relative}
+.tc:hover{border-color:var(--color-border-secondary)}
+.tc.done{opacity:.55}
+.tc.crit{border-left:3px solid #E24B4A}
+.tc.high{border-left:3px solid #EF9F27}
+.tc.med{border-left:3px solid #378ADD}
+.tc.new-j{border-left:3px solid #7F77DD}
+.tc-top{display:flex;align-items:flex-start;gap:5px}
+.chk{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--color-border-secondary);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.chk.on{background:#1D9E75;border-color:#1D9E75}
+.chk.on::after{content:'✓';color:#fff;font-size:8px;font-weight:800}
+.del-btn{margin-left:auto;padding:1px 5px;font-size:9px;border-radius:4px;border:1px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer;opacity:0;transition:opacity .15s;flex-shrink:0}
+.tc:hover .del-btn{opacity:1}
+.del-btn:hover{background:#FCEBEB;color:#A32D2D;border-color:#F7C1C1}
+.tc-txt{font-size:12px;color:var(--color-text-primary);line-height:1.4;flex:1}
+.tc.done .tc-txt{text-decoration:line-through;color:var(--color-text-secondary)}
+.tc-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding-left:19px;margin-top:2px}
+.tc-why{font-size:9.5px;color:var(--color-text-secondary);font-style:italic}
+.src{font-size:9px;padding:1px 5px;border-radius:5px;font-weight:600;background:#EEEDFE;color:#26215C}
+.p-crit{background:#F7C1C1;color:#501313;font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:7px}
+.p-high{background:#FAC775;color:#412402;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:7px}
+.p-med{background:#B5D4F4;color:#042C53;font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:7px}
+
+/* ── ADD TASK FORM ── */
+.add-btn{display:flex;align-items:center;gap:5px;margin:.35rem .4rem .5rem;padding:.35rem .6rem;border-radius:6px;border:1.5px dashed var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:11px;cursor:pointer;width:calc(100% - .8rem);transition:all .15s}
+.add-btn:hover{border-color:var(--color-border-primary);color:var(--color-text-primary);background:var(--color-background-secondary)}
+.add-form{display:none;margin:.3rem .4rem .5rem;padding:.6rem .7rem;border-radius:8px;border:1.5px solid var(--color-border-secondary);background:var(--color-background-primary)}
+.add-form.open{display:block}
+.add-form textarea{width:100%;border:1px solid var(--color-border-secondary);border-radius:5px;padding:5px 7px;font-size:12px;font-family:inherit;color:var(--color-text-primary);background:var(--color-background-secondary);resize:vertical;min-height:52px;line-height:1.4}
+.add-form textarea:focus{outline:none;border-color:var(--color-border-primary)}
+.add-form-row{display:flex;gap:5px;margin-top:6px;align-items:center;flex-wrap:wrap}
+.add-form select{border:1px solid var(--color-border-secondary);border-radius:5px;padding:4px 7px;font-size:11px;font-family:inherit;color:var(--color-text-primary);background:var(--color-background-secondary);cursor:pointer}
+.add-form select:focus{outline:none;border-color:var(--color-border-primary)}
+.save-btn{padding:4px 12px;border-radius:5px;border:none;font-size:11px;font-weight:600;color:#fff;cursor:pointer;background:#1D9E75}
+.save-btn:hover{background:#0F6E56}
+.cancel-btn{padding:4px 10px;border-radius:5px;border:1px solid var(--color-border-secondary);font-size:11px;color:var(--color-text-secondary);background:transparent;cursor:pointer}
+.cancel-btn:hover{background:var(--color-background-secondary)}
+.why-input{border:1px solid var(--color-border-secondary);border-radius:5px;padding:4px 7px;font-size:11px;font-family:inherit;color:var(--color-text-primary);background:var(--color-background-secondary);flex:1;min-width:80px}
+.why-input:focus{outline:none;border-color:var(--color-border-primary)}
+
+.legend{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:.65rem;padding:.4rem .65rem;background:var(--color-background-secondary);border-radius:7px;border:1px solid var(--color-border-tertiary)}
+.leg-item{display:flex;align-items:center;gap:3px;font-size:10px;color:var(--color-text-secondary)}
+.leg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+.outcome-box{border-radius:8px;padding:.65rem .85rem;margin-top:.75rem;border:1px solid var(--color-border-tertiary)}
+.ob0{background:#FCEBEB;border-color:#F7C1C1}.ob1{background:#E6F1FB;border-color:#B5D4F4}.ob2{background:#E1F5EE;border-color:#9FE1CB}.ob3{background:#FAEEDA;border-color:#FAC775}.ob4{background:#EEEDFE;border-color:#AFA9EC}.ob5{background:#FAECE7;border-color:#F5C4B3}.ob6{background:#E6F1FB;border-color:#B5D4F4}.ob7{background:#EAF3DE;border-color:#C0DD97}
+.ob-title{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.ob0 .ob-title{color:#A32D2D}.ob1 .ob-title{color:#185FA5}.ob2 .ob-title{color:#0F6E56}.ob3 .ob-title{color:#854F0B}.ob4 .ob-title{color:#3C3489}.ob5 .ob-title{color:#993C1D}.ob6 .ob-title{color:#185FA5}.ob7 .ob-title{color:#3B6D11}
+.ob-item{font-size:11px;color:var(--color-text-secondary);line-height:1.6;padding-left:11px;position:relative}
+.ob-item::before{content:'→';position:absolute;left:0;font-size:9px}
+.tara-box{background:#EEEDFE;border:1.5px solid #AFA9EC;border-radius:8px;padding:.65rem .85rem;margin-bottom:.55rem}
+.tara-hd{font-size:11.5px;font-weight:700;color:#3C3489;margin-bottom:5px}
+.tara-item{font-size:11px;color:#534AB7;line-height:1.7;padding-left:10px;position:relative}
+.tara-item::before{content:'↳';position:absolute;left:0;font-size:9.5px;color:#7F77DD}
+.wb-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:.55rem}
+.cls-pill{padding:3px 9px;border-radius:14px;font-size:10.5px;font-weight:700}
+.cls-p{background:#E6F1FB;color:#0C447C}.cls-pub{background:#EAF3DE;color:#27500A}.cls-s{background:#FAEEDA;color:#633806}.cls-r{background:#FCEBEB;color:#791F1F}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">UWG Information Security — June 2026 Security Pillars</h2>
+<div class="page-title">🔐 UWG Information Security — June 2026</div>
+<div class="page-sub">Office of Information Security · 8 Pillars · Click any task to mark complete · Use "+ Add task" to add new items</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#E24B4A"></div>Critical</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#EF9F27"></div>High</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#378ADD"></div>Medium</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#7F77DD"></div>New (Jack)</div>
+</div>
+
+<div class="pillar-tabs">
+  <div class="ptab on" data-p="0" onclick="sw(0)">🚨 Incidents</div>
+  <div class="ptab" data-p="1" onclick="sw(1)">🛡️ Compliance</div>
+  <div class="ptab" data-p="2" onclick="sw(2)">🔒 DLP &amp; Policy</div>
+  <div class="ptab" data-p="3" onclick="sw(3)">💻 Vulnerability</div>
+  <div class="ptab" data-p="4" onclick="sw(4)">🎓 Training</div>
+  <div class="ptab" data-p="5" onclick="sw(5)">📄 Contracts</div>
+  <div class="ptab" data-p="6" onclick="sw(6)">📊 Reports</div>
+  <div class="ptab" data-p="7" onclick="sw(7)">🛒 Purchases</div>
+</div>
+
+<!-- PILLAR 0: INCIDENTS -->
+<div class="pillar on" id="p0">
+  <div class="ph ph0">
+    <div><div class="ph-label">Pillar 1 — Incident Management</div><div class="ph-goal">Eliminate the 211-incident backlog · enforce triage SLA · close priority incidents</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl0">0%</div><div class="pbar-bg"><div class="pbar" id="bar0" style="width:0%;background:#A32D2D"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-0-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Leadership · Authority · Escalation</div></div></div>
+      <div class="sec-lbl">Critical decisions</div>
+      <div class="tlist" id="tl-0-J">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Define and approve incident ownership model — severity tiers + SLA enforcement policy</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="tc-why">Leadership/process change</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Assign score 84–100 incidents to senior analysts — confirm ownership before EOB today</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Engage Legal, HR, and Compliance for GLBA + SSN regulatory incidents (Karen Allen score 84)</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Escalate Evan K. Haasenritter account compromise (score 100) to IT Leadership — confirm account status</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Approve and enforce incident triage SLA — 4-hour for new incidents, 24-hour for DLP</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Authorize credential resets for Christian Knight + Damian Prigeon password spray incidents</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-0-J')">+ Add task</button>
+      <div class="add-form" id="af-0-J">
+        <textarea placeholder="Task description…" id="txt-0-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-0-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-0-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('0','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-0-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-0-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Analyst · Operations · Tracking</div></div></div>
+      <div class="sec-lbl">Daily operations</div>
+      <div class="tlist" id="tl-0-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Pre-triage all 211 incidents by severity/category to support Jack's assignment decisions</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Disposition Taegis GLBA awaiting-action cases INV01930, INV01928, INV01932 — document findings</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Investigate INV01940 (ACTIVE — Anonymous IP, jschoon2@my.westga.edu) — authorized or compromised?</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Build and maintain daily incident assignment tracker — report % assigned to leadership each morning</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review and categorize all DLP incidents — group by SSN / Financial / GLBA / HIPAA</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Surface top 20–30 critical/high incidents daily with brief context notes for Jack's decisions</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Flag incidents requiring escalation — include severity, account, and data type in daily summary</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Provide weekly incident status report — % assigned, closures, open score 80+ count</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-0-M')">+ Add task</button>
+      <div class="add-form" id="af-0-M">
+        <textarea placeholder="Task description…" id="txt-0-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-0-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-0-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('0','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-0-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob0"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">99% incident assignment sustained — zero unassigned in Defender queue</div>
+    <div class="ob-item">4-hour assignment SLA enforced for all new incidents</div>
+    <div class="ob-item">Legal/compliance engaged for all score 84+ regulatory data incidents</div>
+  </div>
+</div>
+
+<!-- PILLAR 1: COMPLIANCE -->
+<div class="pillar" id="p1">
+  <div class="ph ph1">
+    <div><div class="ph-label">Pillar 2 — Compliance</div><div class="ph-goal">Regulatory coverage · sign-off accountability · FERPA / HIPAA / GLBA posture</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl1">0%</div><div class="pbar-bg"><div class="pbar" id="bar1" style="width:0%;background:#185FA5"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-1-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Policy · Governance · Sign-off Authority</div></div></div>
+      <div class="tlist" id="tl-1-J">
+        <div class="tc new-j" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">⭐ Create sign-off form for responsibility — document who is accountable for each compliance area and security control</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical · New</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Validate regulatory mappings — confirm FERPA, HIPAA, GLBA, Research coverage aligns to Restricted classification</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review GLBA incident disposition from Taegis cases (INV01930, INV01928, INV01932)</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Determine if breach notification obligations apply for open GLBA cases — engage Legal if required</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Approve auto-labeling vs. user-driven labeling approach for Microsoft Purview</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-1-J')">+ Add task</button>
+      <div class="add-form" id="af-1-J">
+        <textarea placeholder="Task description…" id="txt-1-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-1-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-1-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('1','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-1-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-1-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Technical · Classification · Documentation</div></div></div>
+      <div class="tlist" id="tl-1-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Classify DLP alerts → map each to PII (Sensitive) or Restricted (HIPAA / GLBA / FERPA) category</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Investigate UWG business processes generating DLP alerts — separate legitimate activity from exfiltration</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Investigate student investigations process — confirm Restricted classification covers student data (FERPA)</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Compile security control list and responsible party data for Jack's sign-off form</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review 49 active exfiltration alerts for compliance data types — document per alert for legal review</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span><span class="src">Report</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-1-M')">+ Add task</button>
+      <div class="add-form" id="af-1-M">
+        <textarea placeholder="Task description…" id="txt-1-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-1-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-1-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('1','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-1-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob1"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">Sign-off responsibility form created and signed — clear accountability for every compliance area</div>
+    <div class="ob-item">GLBA/HIPAA/FERPA regulatory mappings validated and documented</div>
+    <div class="ob-item">Breach notification determination completed for open GLBA Taegis cases</div>
+  </div>
+</div>
+
+<!-- PILLAR 2: DLP & POLICY -->
+<div class="pillar" id="p2">
+  <div class="ph ph2">
+    <div><div class="ph-label">Pillar 3 — DLP &amp; Information Protection Policy</div><div class="ph-goal">Build structured data classification model + DLP enforcement framework for UWG</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl2">0%</div><div class="pbar-bg"><div class="pbar" id="bar2" style="width:0%;background:#0F6E56"></div></div></div>
+  </div>
+  <div class="wb-row">
+    <span class="cls-pill cls-p">Personal — individual</span>
+    <span class="cls-pill cls-pub">Public — externally shareable</span>
+    <span class="cls-pill cls-s">Sensitive — PII · 917 · invoices · FSS</span>
+    <span class="cls-pill cls-r">Restricted — HIPAA · FERPA · GLBA · Research</span>
+  </div>
+  <div class="tara-box">
+    <div class="tara-hd">⭐ Priority export task — for Tara</div>
+    <div class="tara-item">Export all Sensitive Information Types (SITs) from Microsoft Purview</div>
+    <div class="tara-item">Export all Trainable Classifiers currently configured</div>
+    <div class="tara-item">Format as Excel / CSV → send to Tara for validation and approval</div>
+    <div style="margin-top:6px;display:flex;align-items:center;gap:5px"><div class="av av-m" style="width:18px;height:18px;font-size:8px">MW</div><span style="font-size:10px;color:#534AB7;font-weight:700">Assigned: Michael Willis</span></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-2-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Policy · Governance · Approval</div></div></div>
+      <div class="tlist" id="tl-2-J">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Define and approve official UWG data classification standard — Personal → Public → Sensitive → Restricted</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Approve DLP enforcement strategy — blocking vs. monitoring vs. labeling approach</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review Tara's SIT/classifier validation feedback — approve final list for implementation</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Validate DLP policy impact before production deployment — sign off on enforcement rollout</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Deploy final approved DLP policy to production after testing sign-off</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-2-J')">+ Add task</button>
+      <div class="add-form" id="af-2-J">
+        <textarea placeholder="Task description…" id="txt-2-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-2-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-2-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('2','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-2-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-2-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Technical Build · SITs · Classifiers</div></div></div>
+      <div class="tlist" id="tl-2-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Identify and document all SITs — SSN (917), financial data, invoices, FSS — identify, label, refine</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">⭐ Export all SITs and Trainable Classifiers → format as Excel/CSV → send to Tara for validation</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical · Tara</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Map SITs to classification levels — Sensitive vs. Restricted</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Build trainable classifier list — document all classifiers in use and identify coverage gaps</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review and tune 49 DLP exfiltration alerts — reduce noise, adjust thresholds</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Identify unlabeled files and exposure patterns — document scope for DLP policy coverage</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Build DLP policy for unlabeled file protection — draft rules, test in simulation mode first</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Tune DLP policy thresholds to reduce alert noise once classification model is approved</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-2-M')">+ Add task</button>
+      <div class="add-form" id="af-2-M">
+        <textarea placeholder="Task description…" id="txt-2-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-2-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-2-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('2','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-2-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob2"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">4-level UWG classification model approved</div>
+    <div class="ob-item">SIT + classifier inventory exported, sent to Tara, validated, and approved</div>
+    <div class="ob-item">DLP alert noise reduced — alerts mapped correctly to classification level</div>
+  </div>
+</div>
+
+<!-- PILLAR 3: VULNERABILITY -->
+<div class="pillar" id="p3">
+  <div class="ph ph3">
+    <div><div class="ph-label">Pillar 4 — Vulnerability Management</div><div class="ph-goal">Close Ivanti patch failure · confirm Defender enrollment · remediate privileged identities</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl3">0%</div><div class="pbar-bg"><div class="pbar" id="bar3" style="width:0%;background:#854F0B"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-3-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Resolution Authority · Escalation</div></div></div>
+      <div class="tlist" id="tl-3-J">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Resolve Ivanti patch failures (Case 478332) — determine root cause and authorize remediation path</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Remediate 3 Critical Active Directory service accounts flagged by Defender</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Confirm Defender for Endpoint enrollment — verify >95% target met after May 15 deadline</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Authorize NAC guest VLAN restriction for devices still unenrolled post-deadline</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Complete review of all 99 highly privileged identities — approve privilege removals</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-3-J')">+ Add task</button>
+      <div class="add-form" id="af-3-J">
+        <textarea placeholder="Task description…" id="txt-3-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-3-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-3-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('3','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-3-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-3-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Identification · Tracking · Reporting</div></div></div>
+      <div class="tlist" id="tl-3-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Identify all systems affected by Ivanti patch failure — document by device, owner, and department</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Investigate 4 Risky Identities flagged in Identity Inventory dashboard — document findings for Jack</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Pull current Defender for Endpoint enrollment % from Intune — identify unenrolled devices by dept</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Track Ivanti patch remediation progress weekly — report completion to Jack and leadership</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Generate weekly Intune enrollment report — track % toward 100% and flag persistent non-enrollments</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-3-M')">+ Add task</button>
+      <div class="add-form" id="af-3-M">
+        <textarea placeholder="Task description…" id="txt-3-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-3-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-3-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('3','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-3-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob3"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">Case 478332 closed — all affected systems confirmed patched</div>
+    <div class="ob-item">Defender for Endpoint enrollment confirmed >95%</div>
+    <div class="ob-item">3 Critical AD accounts remediated · 4 Risky Identities actioned</div>
+  </div>
+</div>
+
+<!-- PILLAR 4: TRAINING -->
+<div class="pillar" id="p4">
+  <div class="ph ph4">
+    <div><div class="ph-label">Pillar 5 — Training &amp; User Risk</div><div class="ph-goal">Drive staff/faculty to >80% completion before June 5, 2026 deadline</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl4">0%</div><div class="pbar-bg"><div class="pbar" id="bar4" style="width:0%;background:#3C3489"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-4-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Escalation · Accountability · Cabinet Reporting</div></div></div>
+      <div class="tlist" id="tl-4-J">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Send official manager notifications — direct reports to have 160 non-started employees complete before June 5</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Escalate non-compliant departments — formally notify department heads with &lt;80% completion</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Authorize conditional access enforcement — approve redirect of non-completers to training on next M365 login</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Present final training completion report to Cabinet on June 6</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-4-J')">+ Add task</button>
+      <div class="add-form" id="af-4-J">
+        <textarea placeholder="Task description…" id="txt-4-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-4-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-4-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('4','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-4-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-4-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Tracking · Analysis · Data Pulls</div></div></div>
+      <div class="tlist" id="tl-4-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Track daily training completion status by department — send updated dashboard to Jack each morning</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Identify all high-risk users with PPP score >45 — generate priority outreach list</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Export manager contact list from KnowBe4 — provide to Jack for official notification outreach</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Analyze PAB non-simulated reports (8,156) — identify top phishing themes and targeted departments</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Generate final June 6 completion report — % by dept, high-risk non-completers, PPP trend</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-4-M')">+ Add task</button>
+      <div class="add-form" id="af-4-M">
+        <textarea placeholder="Task description…" id="txt-4-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-4-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-4-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('4','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-4-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob4"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">>80% staff/faculty training completion before June 5 deadline</div>
+    <div class="ob-item">High-risk users (PPP >45) identified and prioritized</div>
+  </div>
+</div>
+
+<!-- PILLAR 5: CONTRACTS -->
+<div class="pillar" id="p5">
+  <div class="ph ph5">
+    <div><div class="ph-label">Pillar 6 — Contracts / Initiatives</div><div class="ph-goal">CampusGuard historical documentation · implementation phase · McElroy presentation</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl5">0%</div><div class="pbar-bg"><div class="pbar" id="bar5" style="width:0%;background:#993C1D"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-5-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Leadership · Presentation · Initiative Owner</div></div></div>
+      <div class="tlist" id="tl-5-J">
+        <div class="tc new-j" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">⭐ Compile CampusGuard historical fact sheet — managed by Kyle Mims &amp; Tommy Jenks, past pen test reports, original contract. Present to McElroy — documented facts, not hearsay</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical · New</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc new-j" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">⭐ Implementation phase — talk to Chris and Kirk, create tasks for teams to implement security controls. Schedule manager meeting with Michael Willis included</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical · New</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review CampusGuard original contract terms — confirm scope, deliverables, and renewal options</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Schedule and lead manager meeting for security controls implementation — include Michael Willis</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Coordinate with Chris and Kirk on implementation phase logistics — assign team tasks</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-5-J')">+ Add task</button>
+      <div class="add-form" id="af-5-J">
+        <textarea placeholder="Task description…" id="txt-5-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-5-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-5-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('5','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-5-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-5-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Research · Documentation · Support</div></div></div>
+      <div class="tlist" id="tl-5-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Research CampusGuard usage history — gather contact info for Kyle Mims &amp; Tommy Jenks, prior pen test reports, and contract documents to support Jack's fact sheet</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Compile prior penetration test reports — summarize findings, dates, scope, and remediation status</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Attend implementation manager meeting — take notes, document assigned tasks and owners</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Whiteboard</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Create implementation task tracker — document security control tasks assigned to each team from manager meeting</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Track implementation progress weekly — report status to Jack ahead of future McElroy follow-ups</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-5-M')">+ Add task</button>
+      <div class="add-form" id="af-5-M">
+        <textarea placeholder="Task description…" id="txt-5-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-5-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-5-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('5','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-5-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob5"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">CampusGuard fact sheet ready for McElroy presentation — documented facts, not hearsay</div>
+    <div class="ob-item">Implementation phase kicked off — teams have assigned security control tasks</div>
+  </div>
+</div>
+
+<!-- PILLAR 6: REPORTS -->
+<div class="pillar" id="p6">
+  <div class="ph ph6">
+    <div><div class="ph-label">Pillar 7 — Reports</div><div class="ph-goal">Ongoing security reporting · executive metrics · leadership deliverables</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl6">0%</div><div class="pbar-bg"><div class="pbar" id="bar6" style="width:0%;background:#0C447C"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-6-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Review · Approval · Presentation</div></div></div>
+      <div class="tlist" id="tl-6-J">
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review and approve June 2026 Executive Cybersecurity Report before Cabinet distribution</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Present training completion report to Cabinet on June 6 — department-level breakdown</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Share BitSight 770 score report with cyber insurance broker at next renewal</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span><span class="src">Report</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review and approve weekly incident assignment rate reports before forwarding to CISO</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-6-J')">+ Add task</button>
+      <div class="add-form" id="af-6-J">
+        <textarea placeholder="Task description…" id="txt-6-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-6-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-6-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('6','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-6-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-6-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Author · Analyst · Data Compilation</div></div></div>
+      <div class="tlist" id="tl-6-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Compile data for June 2026 Executive Cybersecurity Report — pull exports from all production systems</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Generate daily incident assignment rate report — send to Jack each morning until backlog is cleared</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Generate June 6 training completion report — % by dept, PPP trends, high-risk non-completers</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Produce weekly Intune/Defender enrollment status report — track toward 100% endpoint coverage</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Track BitSight score monthly — document factors contributing to gap toward 780+ target</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-6-M')">+ Add task</button>
+      <div class="add-form" id="af-6-M">
+        <textarea placeholder="Task description…" id="txt-6-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-6-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-6-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('6','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-6-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob6"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">June 2026 Executive Report compiled, reviewed, and distributed by end of June</div>
+    <div class="ob-item">Training, incident, and enrollment reports delivered on schedule</div>
+  </div>
+</div>
+
+<!-- PILLAR 7: PURCHASES -->
+<div class="pillar" id="p7">
+  <div class="ph ph7">
+    <div><div class="ph-label">Pillar 8 — Purchases &amp; Tool Governance</div><div class="ph-goal">Unsanctioned app decisions · tool approvals · security tool procurement</div></div>
+    <div class="prog-wrap"><div class="prog-lbl" id="lbl7">0%</div><div class="pbar-bg"><div class="pbar" id="bar7" style="width:0%;background:#3B6D11"></div></div></div>
+  </div>
+  <div class="cols">
+    <div class="lane" id="lane-7-J">
+      <div class="lane-hd lj"><div class="av av-j">JS</div><div><div class="lname">Jack Snyder</div><div class="lrole">Approval Authority · Procurement</div></div></div>
+      <div class="tlist" id="tl-7-J">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Authorize immediate block of DeepSeek at proxy/firewall — Chinese-origin Gen AI, FERPA/GLBA/HIPAA risk</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Formally classify Microsoft Xbox (1,028 users) — sanction with policy or authorize block</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Formally classify Snapchat (51 users) and Docker (1 user) — approve sanctioned/unsanctioned status</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Approve and publish formal Generative AI use policy — M365 Copilot is the approved platform</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Review admin consent request queue — ensure 5-business-day SLA is being met for new app approvals</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-7-J')">+ Add task</button>
+      <div class="add-form" id="af-7-J">
+        <textarea placeholder="Task description…" id="txt-7-J"></textarea>
+        <div class="add-form-row">
+          <select id="pri-7-J"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-7-J" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('7','J')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-7-J')">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div class="lane" id="lane-7-M">
+      <div class="lane-hd lm"><div class="av av-m">MW</div><div><div class="lname">Michael Willis</div><div class="lrole">Analysis · Classification · Governance Tracking</div></div></div>
+      <div class="tlist" id="tl-7-M">
+        <div class="tc crit" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Confirm DeepSeek block is implemented at proxy — document in HelpWest with user-facing policy notice</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-crit">Critical</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Continue Cloud App governance backlog reduction — target fewer than 500 unclassified apps by July</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span><span class="src">Report</span></div></div>
+        <div class="tc high" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Document classification decisions for Xbox, Snapchat, Docker — update Cloud Apps with approved status</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-high">High</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Monitor monthly Cloud Discovery dashboard — flag any new unsanctioned apps for next reporting cycle</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+        <div class="tc med" onclick="tog(this)"><div class="tc-top"><div class="chk"></div><div class="tc-txt">Track admin consent request volume — flag if trending up (indicator of shadow IT growth)</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="p-med">Medium</span></div></div>
+      </div>
+      <button class="add-btn" onclick="openForm('af-7-M')">+ Add task</button>
+      <div class="add-form" id="af-7-M">
+        <textarea placeholder="Task description…" id="txt-7-M"></textarea>
+        <div class="add-form-row">
+          <select id="pri-7-M"><option value="crit">🔴 Critical</option><option value="high" selected>🟠 High</option><option value="med">🔵 Medium</option></select>
+          <input class="why-input" id="why-7-M" placeholder="Reason / note (optional)">
+          <button class="save-btn" onclick="saveTask('7','M')">Add</button>
+          <button class="cancel-btn" onclick="closeForm('af-7-M')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="outcome-box ob7"><div class="ob-title">Target outcomes</div>
+    <div class="ob-item">DeepSeek blocked — zero unsanctioned GenAI platforms on UWG network</div>
+    <div class="ob-item">All 5 unsanctioned apps formally classified</div>
+    <div class="ob-item">Fewer than 500 unclassified apps by July 2026</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function sw(i){
+  document.querySelectorAll('.ptab').forEach((t,j)=>t.classList.toggle('on',j===i));
+  document.querySelectorAll('.pillar').forEach((p,j)=>p.classList.toggle('on',j===i));
+}
+
+function tog(card){
+  if(event&&event.target.classList.contains('del-btn'))return;
+  if(event&&event.target.classList.contains('chk')){}
+  const chk=card.querySelector('.chk');
+  const done=chk.classList.toggle('on');
+  card.classList.toggle('done',done);
+  upd();
+}
+
+function del(e,btn){
+  e.stopPropagation();
+  const card=btn.closest('.tc');
+  if(confirm('Remove this task?')){card.remove();upd();}
+}
+
+function openForm(id){
+  document.querySelectorAll('.add-form').forEach(f=>f.classList.remove('open'));
+  document.getElementById(id).classList.add('open');
+  const parts=id.split('-');
+  const txtId='txt-'+parts[1]+'-'+parts[2];
+  setTimeout(()=>{const el=document.getElementById(txtId);if(el)el.focus();},50);
+}
+
+function closeForm(id){
+  const f=document.getElementById(id);
+  f.classList.remove('open');
+  const parts=id.split('-');
+  const key='txt-'+parts[1]+'-'+parts[2];
+  const wkey='why-'+parts[1]+'-'+parts[2];
+  const el=document.getElementById(key);
+  const wel=document.getElementById(wkey);
+  if(el)el.value='';
+  if(wel)wel.value='';
+}
+
+function saveTask(pillar,person){
+  const txtEl=document.getElementById('txt-'+pillar+'-'+person);
+  const priEl=document.getElementById('pri-'+pillar+'-'+person);
+  const whyEl=document.getElementById('why-'+pillar+'-'+person);
+  const txt=(txtEl&&txtEl.value.trim())||'';
+  if(!txt)return;
+  const pri=priEl?priEl.value:'high';
+  const why=whyEl?whyEl.value.trim():'';
+  const tlId='tl-'+pillar+'-'+person;
+  const tl=document.getElementById(tlId);
+  if(!tl)return;
+
+  const priClass={'crit':'crit','high':'high','med':'med'}[pri]||'high';
+  const priLabel={'crit':'Critical','high':'High','med':'Medium'}[pri]||'High';
+  const priSpanClass={'crit':'p-crit','high':'p-high','med':'p-med'}[pri]||'p-high';
+
+  const card=document.createElement('div');
+  card.className='tc '+priClass;
+  card.onclick=function(e){
+    if(e.target.classList.contains('del-btn'))return;
+    const c=this;
+    const chk=c.querySelector('.chk');
+    chk.classList.toggle('on');
+    c.classList.toggle('done',chk.classList.contains('on'));
+    upd();
+  };
+  card.innerHTML=`<div class="tc-top"><div class="chk"></div><div class="tc-txt">${escHtml(txt)}</div><button class="del-btn" onclick="del(event,this)">✕</button></div><div class="tc-meta"><span class="${priSpanClass}">${priLabel}</span>${why?`<span class="tc-why">${escHtml(why)}</span>`:''}<span class="src">Added</span></div>`;
+
+  // Insert before add-btn
+  const addBtn=tl.parentElement.querySelector('.add-btn');
+  tl.appendChild(card);
+
+  closeForm('af-'+pillar+'-'+person);
+  upd();
+}
+
+function escHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function upd(){
+  for(let i=0;i<8;i++){
+    const p=document.getElementById('p'+i);
+    if(!p)continue;
+    const all=p.querySelectorAll('.tc').length;
+    const done=p.querySelectorAll('.chk.on').length;
+    const pct=all?Math.round(done/all*100):0;
+    const bar=document.getElementById('bar'+i);
+    const lbl=document.getElementById('lbl'+i);
+    const colors=['#A32D2D','#185FA5','#0F6E56','#854F0B','#3C3489','#993C1D','#0C447C','#3B6D11'];
+    if(bar){bar.style.width=pct+'%';bar.style.background=colors[i];}
+    if(lbl)lbl.textContent=pct+'% ('+done+'/'+all+')';
+  }
+}
+upd();
+</script>
